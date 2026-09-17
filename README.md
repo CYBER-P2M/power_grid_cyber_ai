@@ -1,2 +1,327 @@
 # power_grid_cyber_ai
 Windows
+
+
+# أوامر تشغيل مشروع PowerGrid Cyber AI
+
+## 1. فتح مجلد المشروع
+
+افتح Command Prompt أو PowerShell ونفّذ:
+
+cmd
+
+cd power_grid_cyber_ai_full
+
+python -m venv .venv
+
+.venv\Scripts\activate
+
+.\.venv\Scripts\Activate.ps1
+
+
+## 4. تثبيت المتطلبات
+
+python -m pip install --upgrade pip
+pip install -r requirements.txtار البيانات
+
+افتح
+python src\train_models.py --target marker
+
+
+انتظر حتى تظهر:
+
+text
+Training completed successfully.
+
+
+ينشئ التدريب الملفات التالية:
+
+models\random_forest.joblib
+models\xgboost_model.joblib
+models\imputer.joblib
+models\label_encoder.joblib
+models\feature_order.json
+models\model_metadata.json
+results\predictions_test.csv
+
+## 9. تقييم النماذج
+
+python src\evaluate_models.py
+
+
+ينشئ:
+
+results\confusion_matrices\
+results\classification_reports\
+results\fault_attack_analysis.csv
+
+تحقق من ملف أخطاء Fault وAttack:
+
+type results\fault_attack_analysis.csv
+
+## 10. استخراج أهم الخصائص
+
+python src\explainability.py
+
+ينشئ:
+
+results\top_20_features.csv
+
+لعرضه:
+
+type results\top_20_features.csv
+
+## 11. اختبار Risk Score من الطرفية
+
+اختبار مباشر:
+
+```cmd
+python app\risk_score.py
+```
+
+إذا كان لديك ملف JSON لصف واحد:
+
+```cmd
+python app\risk_score.py --input app\sample_input.json
+```
+
+يجب أن يعرض:
+
+```text
+predicted_class
+risk_score
+probabilities
+```
+
+## 12. تشغيل Dashboard
+
+شغّلها من جذر المشروع:
+
+```cmd
+python -m streamlit run dashboard\app.py
+```
+
+أو:
+
+```cmd
+streamlit run dashboard\app.py
+```
+
+افتح المتصفح على:
+
+```text
+http://localhost:8501
+```
+
+تحتوي Dashboard على:
+
+```text
+Overview
+Live Risk
+Evaluation
+Feature Importance
+Real Prediction
+About
+```
+
+## 13. تشغيل صفحة Real Prediction
+
+تأكد من وجود الصفحة:
+
+```cmd
+dir dashboard\pages
+```
+
+يجب أن يظهر:
+
+```text
+2_Real_Prediction.py
+```
+
+داخل الصفحة يجب أن يكون مسار الجذر:
+
+```python
+ROOT = Path(__file__).resolve().parents[2]
+```
+
+لا تشغّل الصفحة منفردة. شغّل دائماً التطبيق الرئيسي:
+
+```cmd
+python -m streamlit run dashboard\app.py
+```
+
+ثم افتح `2 Real Prediction` وارفع ملف CSV يحتوي على خصائص التدريب الـ128.
+
+## 14. إيقاف Dashboard
+
+داخل نافذة التشغيل اضغط:
+
+```text
+Ctrl + C
+```
+
+## 15. بناء نسخة Windows EXE
+
+تأكد أولاً من تثبيت PyInstaller:
+
+```cmd
+pip install pyinstaller
+```
+
+ثم شغّل ملف البناء:
+
+```cmd
+build_exe.bat
+```
+
+إذا نجح البناء، شغّل التطبيق من:
+
+```cmd
+dist\PowerGridCyberAI\PowerGridCyberAI.exe
+```
+
+لا تنقل ملف EXE وحده؛ احتفظ بالمجلد كاملاً:
+
+```text
+dist\PowerGridCyberAI\
+```
+
+## 16. بناء EXE يدوياً
+
+إذا لم يعمل `build_exe.bat`، استخدم:
+
+```cmd
+python -m PyInstaller --noconfirm --clean --onedir --name PowerGridCyberAI --console ^
+  --add-data "dashboard;dashboard" ^
+  --add-data "models;models" ^
+  --add-data "results;results" ^
+  run_app.py
+```
+
+ثم:
+
+```cmd
+dist\PowerGridCyberAI\PowerGridCyberAI.exe
+```
+
+## 17. تسلسل التشغيل اليومي بعد اكتمال التدريب
+
+إذا كانت النماذج موجودة داخل `models` ولا تحتاج إلى إعادة التدريب:
+
+```cmd
+cd /d C:\Users\LEO\Desktop\me-too\power_grid_cyber_ai_full\power_grid_cyber_ai_full
+.venv\Scripts\activate
+python src\evaluate_models.py
+python src\explainability.py
+python -m streamlit run dashboard\app.py
+```
+
+## 18. تسلسل التشغيل الكامل من الصفر
+
+```cmd
+cd /d C:\Users\LEO\Desktop\me-too\power_grid_cyber_ai_full\power_grid_cyber_ai_full
+python -m venv .venv
+.venv\Scripts\activate
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+python src\train_models.py --target marker
+python src\evaluate_models.py
+python src\explainability.py
+python -m streamlit run dashboard\app.py
+```
+
+## 19. تسلسل بناء وتشغيل EXE
+
+```cmd
+cd /d C:\Users\LEO\Desktop\me-too\power_grid_cyber_ai_full\power_grid_cyber_ai_full
+.venv\Scripts\activate
+pip install -r requirements.txt
+pip install pyinstaller
+build_exe.bat
+dist\PowerGridCyberAI\PowerGridCyberAI.exe
+```
+
+## 20. حل المشكلات الشائعة
+
+### خطأ: Target not found
+
+استخدم:
+
+```cmd
+python src\train_models.py --target marker
+```
+
+### خطأ: لا توجد ملفات CSV
+
+تحقق من:
+
+```cmd
+dir data\raw
+```
+
+أو:
+
+```cmd
+dir data\selected
+```
+
+### خطأ: ملفات النموذج غير موجودة
+
+أعد التدريب:
+
+```cmd
+python src\train_models.py --target marker
+```
+
+### خطأ: صفحة Real Prediction لا ترى النموذج
+
+تأكد من وجود:
+
+```text
+models\random_forest.joblib
+models\imputer.joblib
+models\label_encoder.joblib
+models\feature_order.json
+```
+
+وتأكد أن صفحة `2_Real_Prediction.py` تستخدم:
+
+```python
+ROOT = Path(__file__).resolve().parents[2]
+```
+
+### خطأ: صفحة إضافية لا تظهر
+
+تأكد من وجودها هنا بالضبط:
+
+```text
+dashboard\pages\2_Real_Prediction.py
+```
+
+ثم أوقف التطبيق وشغّله من جديد:
+
+```cmd
+python -m streamlit run dashboard\app.py
+```
+
+### خطأ: Streamlit يعمل على صفحة قديمة
+
+أوقفه:
+
+```text
+Ctrl + C
+```
+
+ثم شغّله مرة أخرى:
+
+```cmd
+python -m streamlit run dashboard\app.py
+```
+
+## 21. تنبيه أمني وتشغيلي
+
+هذا المشروع يعمل على بيانات تاريخية أو محاكاة فقط. لا تربطه بشبكة كهرباء حقيقية، ولا تستخدم Risk Score وحده لتنفيذ قرار تشغيلي. يجب مراجعة النتائج من شخص مختص قبل أي إجراء.
+
+
+[project_run_commands.md](https://github.com/user-attachments/files/32323850/project_run_commands.md)
+
