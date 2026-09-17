@@ -8,34 +8,151 @@ Windows
 
 افتح Command Prompt أو PowerShell ونفّذ:
 
-cmd
+```cmd
+cd power_grid_cyber_ai
+```
 
-cd power_grid_cyber_ai_full
+تحقق من أنك داخل جذر المشروع:
 
+```cmd
+dir
+```
+
+يجب أن تظهر مجلدات مثل:
+
+```text
+data
+models
+results
+src
+app
+dashboard
+tools
+requirements.txt
+```
+
+## 2. إنشاء البيئة الافتراضية
+
+نفّذ هذه الخطوة مرة واحدة فقط إذا لم تكن البيئة موجودة:
+
+```cmd
 python -m venv .venv
+```
 
+## 3. تفعيل البيئة
+
+في Command Prompt:
+
+```cmd
 .venv\Scripts\activate
+```
 
+في PowerShell:
+
+```powershell
 .\.venv\Scripts\Activate.ps1
+```
 
+يجب أن يظهر اسم البيئة في بداية السطر:
+
+```text
+(.venv)
+```
+
+إذا منع PowerShell تشغيل السكربتات، افتح PowerShell كمسؤول ونفّذ مرة واحدة:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+ثم فعّل البيئة:
+
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
 
 ## 4. تثبيت المتطلبات
 
+```cmd
 python -m pip install --upgrade pip
-pip install -r requirements.txtار البيانات
+pip install -r requirements.txt
+```
 
-افتح
+لإنشاء نسخة EXE لاحقاً:
+
+```cmd
+pip install pyinstaller
+```
+
+## 5. التحقق من ملفات البيانات
+
+إذا كانت البيانات داخل `data/raw`:
+
+```cmd
+dir data\raw
+```
+
+إذا كانت البيانات النهائية داخل `data/selected`:
+
+```cmd
+dir data\selected
+```
+
+استخدم نسخة واحدة متجانسة من Dataset، ولا تخلط ملفات `data1.csv` إلى `data15.csv` مع نسخ Kaggle أو ملفات Figshare التدريبية والاختبارية إلا بعد توثيق ذلك.
+
+## 6. التحقق من عمود التسمية
+
+لنسخة `data/raw`:
+
+```cmd
+python -c "import pandas as pd,glob; d=pd.concat([pd.read_csv(f,usecols=['marker']) for f in glob.glob('data/raw/*.csv')],ignore_index=True); print(d['marker'].value_counts(dropna=False).to_string())"
+```
+
+لنسخة `data/selected`:
+
+```cmd
+python -c "import pandas as pd,glob; d=pd.concat([pd.read_csv(f,usecols=['marker']) for f in glob.glob('data/selected/*.csv')],ignore_index=True); print(d['marker'].value_counts(dropna=False).to_string())"
+```
+
+## 7. تحديد مسار البيانات
+
+افتح:
+
+```text
+src/config.py
+```
+
+إذا كانت البيانات داخل `data/raw` استخدم:
+
+```python
+RAW_DIR = ROOT / "data" / "raw"
+```
+
+إذا كانت البيانات النهائية داخل `data/selected` استخدم:
+
+```python
+RAW_DIR = ROOT / "data" / "selected"
+```
+
+لا تستخدم المسارين في الوقت نفسه.
+
+## 8. تدريب النماذج
+
+عمود التسمية في Dataset الحالية هو `marker`:
+
+```cmd
 python src\train_models.py --target marker
-
+```
 
 انتظر حتى تظهر:
 
-text
+```text
 Training completed successfully.
-
+```
 
 ينشئ التدريب الملفات التالية:
 
+```text
 models\random_forest.joblib
 models\xgboost_model.joblib
 models\imputer.joblib
@@ -43,33 +160,45 @@ models\label_encoder.joblib
 models\feature_order.json
 models\model_metadata.json
 results\predictions_test.csv
+```
 
 ## 9. تقييم النماذج
 
+```cmd
 python src\evaluate_models.py
-
+```
 
 ينشئ:
 
+```text
 results\confusion_matrices\
 results\classification_reports\
 results\fault_attack_analysis.csv
+```
 
 تحقق من ملف أخطاء Fault وAttack:
 
+```cmd
 type results\fault_attack_analysis.csv
+```
 
 ## 10. استخراج أهم الخصائص
 
+```cmd
 python src\explainability.py
+```
 
 ينشئ:
 
+```text
 results\top_20_features.csv
+```
 
 لعرضه:
 
+```cmd
 type results\top_20_features.csv
+```
 
 ## 11. اختبار Risk Score من الطرفية
 
@@ -159,67 +288,10 @@ python -m streamlit run dashboard\app.py
 ```text
 Ctrl + C
 ```
-
-## 15. بناء نسخة Windows EXE
-
-تأكد أولاً من تثبيت PyInstaller:
-
-```cmd
-pip install pyinstaller
-```
-
-ثم شغّل ملف البناء:
-
-```cmd
-build_exe.bat
-```
-
-إذا نجح البناء، شغّل التطبيق من:
-
-```cmd
-dist\PowerGridCyberAI\PowerGridCyberAI.exe
-```
-
-لا تنقل ملف EXE وحده؛ احتفظ بالمجلد كاملاً:
-
-```text
-dist\PowerGridCyberAI\
-```
-
-## 16. بناء EXE يدوياً
-
-إذا لم يعمل `build_exe.bat`، استخدم:
-
-```cmd
-python -m PyInstaller --noconfirm --clean --onedir --name PowerGridCyberAI --console ^
-  --add-data "dashboard;dashboard" ^
-  --add-data "models;models" ^
-  --add-data "results;results" ^
-  run_app.py
-```
-
-ثم:
-
-```cmd
-dist\PowerGridCyberAI\PowerGridCyberAI.exe
-```
-
-## 17. تسلسل التشغيل اليومي بعد اكتمال التدريب
-
-إذا كانت النماذج موجودة داخل `models` ولا تحتاج إلى إعادة التدريب:
-
-```cmd
-cd /d C:\Users\LEO\Desktop\me-too\power_grid_cyber_ai_full\power_grid_cyber_ai_full
-.venv\Scripts\activate
-python src\evaluate_models.py
-python src\explainability.py
-python -m streamlit run dashboard\app.py
-```
-
 ## 18. تسلسل التشغيل الكامل من الصفر
 
 ```cmd
-cd /d C:\Users\LEO\Desktop\me-too\power_grid_cyber_ai_full\power_grid_cyber_ai_full
+cd power_grid_cyber_ai_full
 python -m venv .venv
 .venv\Scripts\activate
 python -m pip install --upgrade pip
@@ -233,7 +305,7 @@ python -m streamlit run dashboard\app.py
 ## 19. تسلسل بناء وتشغيل EXE
 
 ```cmd
-cd /d C:\Users\LEO\Desktop\me-too\power_grid_cyber_ai_full\power_grid_cyber_ai_full
+cd power_grid_cyber_ai_full
 .venv\Scripts\activate
 pip install -r requirements.txt
 pip install pyinstaller
@@ -321,7 +393,3 @@ python -m streamlit run dashboard\app.py
 ## 21. تنبيه أمني وتشغيلي
 
 هذا المشروع يعمل على بيانات تاريخية أو محاكاة فقط. لا تربطه بشبكة كهرباء حقيقية، ولا تستخدم Risk Score وحده لتنفيذ قرار تشغيلي. يجب مراجعة النتائج من شخص مختص قبل أي إجراء.
-
-
-[project_run_commands.md](https://github.com/user-attachments/files/32323850/project_run_commands.md)
-
