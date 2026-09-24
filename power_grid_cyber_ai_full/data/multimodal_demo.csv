@@ -1,0 +1,11 @@
+timestamp,substation_id,cyber_risk,attack_type,physical_risk,vision_labels,fused_risk,decision_category
+2026-09-24 08:00:00,SUB-001,0.15,normal,0.08,normal,0.12,NORMAL
+2026-09-24 08:05:00,SUB-001,0.82,FDIA,0.12,normal,0.51,CYBER_ATTACK
+2026-09-24 08:10:00,SUB-001,0.88,DoS,0.78,fire_smoke,0.84,CYBER_PHYSICAL_EVENT
+2026-09-24 08:15:00,SUB-001,0.22,normal,0.65,intruder,0.42,INTRUSION
+2026-09-24 08:20:00,SUB-001,0.18,normal,0.72,equipment_damage,0.45,PHYSICAL_FAULT
+2026-09-24 08:25:00,SUB-001,0.91,replay,0.85,fire_smoke,0.89,CYBER_PHYSICAL_EVENT
+2026-09-24 08:30:00,SUB-001,0.12,normal,0.05,normal,0.09,NORMAL
+2026-09-24 08:35:00,SUB-001,0.78,data_injection,0.15,normal,0.49,CYBER_ATTACK
+2026-09-24 08:40:00,SUB-001,0.25,normal,0.68,no_ppe,0.44,INTRUSION
+2026-09-24 08:45:00,SUB-001,0.85,FDIA,0.82,intruder,0.83,CYBER_PHYSICAL_EVENT
