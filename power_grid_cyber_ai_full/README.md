@@ -8,8 +8,12 @@
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
+pip install opencv-python
+pip install ultralytics
 # ضع CSV داخل data/raw/
+python src/train_models.py ---target marker
 python src/train_models.py
+
 python src/evaluate_models.py
 python src/explainability.py
 streamlit run dashboard/app.py
