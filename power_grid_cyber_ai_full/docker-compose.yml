@@ -1,0 +1,99 @@
+# Docker Compose for Multimodal Power Grid Security System
+#
+# Usage:
+#   docker-compose up -d
+#   docker-compose down
+#
+# Services:
+#   - dashboard: Main Streamlit app (port 8501)
+#   - multimodal: Multimodal dashboard (port 8502)
+#   - vision-api: Optional REST API for vision detection (port 8000)
+
+version: '3.8'
+
+services:
+  dashboard:
+    build: .
+    container_name: power-grid-dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+      - ./results:/app/results
+      - ./models:/app/models
+    environment:
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    command: >
+      streamlit run dashboard/app.py
+      --server.port=8501
+      --server.address=0.0.0.0
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8501')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  multimodal:
+    build: .
+    container_name: power-grid-multimodal
+    ports:
+      - "8502:8502"
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - /dev/video0:/dev/video0  # Optional: camera access
+    environment:
+      - STREAMLIT_SERVER_PORT=8502
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+    command: >
+      streamlit run dashboard/pages/4_Multimodal_CPS.py
+      --server.port=8502
+      --server.address=0.0.0.0
+    restart: unless-stopped
+    depends_on:
+      - dashboard
+
+  # Optional: REST API for vision detection
+  vision-api:
+    build: .
+    container_name: power-grid-vision-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./models:/app/models
+    environment:
+      - VISION_MODEL_PATH=/app/models/fire_detector.pt
+    command: >
+      uvicorn tools.vision_api:app
+      --host 0.0.0.0
+      --port 8000
+    restart: unless-stopped
+    profiles:
+      - api
+
+  # Optional: Camera stream processor
+  camera-processor:
+    build: .
+    container_name: power-grid-camera-processor
+    volumes:
+      - ./models:/app/models
+      - ./results:/app/results
+      - /dev/video0:/dev/video0
+    environment:
+      - CAMERA_SOURCE=0
+      - VISION_MODEL_PATH=/app/models/intruder_detector.pt
+    command: >
+      python src/vision_detector_yolo.py
+      --camera 0
+      --model /app/models/intruder_detector.pt
+    restart: unless-stopped
+    profiles:
+      - camera
+
+# Named volumes for persistence
+volumes:
+  models:
+  data:
+  results:

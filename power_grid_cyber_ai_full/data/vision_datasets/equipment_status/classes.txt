@@ -1,0 +1,3 @@
+breaker_open
+breaker_closed
+damaged_equipment
