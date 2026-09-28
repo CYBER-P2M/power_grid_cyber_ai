@@ -1,3 +1,0 @@
-person
-vehicle
-no_ppe

@@ -1,7 +1,0 @@
-# Fire and smoke detection for power grid monitoring
-path: C:\Users\LEO\Desktop\me-lap\power_grid_cyber_ai_full2\data\vision_datasets\fire_detection
-train: images/train
-val: images/val
-
-nc: 2
-names: ['fire', 'smoke']

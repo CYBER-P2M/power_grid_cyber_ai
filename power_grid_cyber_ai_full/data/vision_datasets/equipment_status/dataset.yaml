@@ -1,7 +1,0 @@
-# Equipment status classification
-path: C:\Users\LEO\Desktop\me-lap\power_grid_cyber_ai_full2\data\vision_datasets\equipment_status
-train: images/train
-val: images/val
-
-nc: 3
-names: ['breaker_open', 'breaker_closed', 'damaged_equipment']

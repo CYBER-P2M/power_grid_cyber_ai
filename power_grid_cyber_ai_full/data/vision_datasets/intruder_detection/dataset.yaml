@@ -1,7 +1,0 @@
-# Intruder and PPE compliance detection
-path: C:\Users\LEO\Desktop\me-lap\power_grid_cyber_ai_full2\data\vision_datasets\intruder_detection
-train: images/train
-val: images/val
-
-nc: 3
-names: ['person', 'vehicle', 'no_ppe']
